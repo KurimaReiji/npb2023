@@ -1,0 +1,85 @@
+
+[data-team="Buffaloes"] {
+  --hue: var(--buffaloes-hue);
+  --saturation: var(--buffaloes-saturation);
+  --lightness: var(--buffaloes-lightness);
+}
+
+[data-team="Hawks"] {
+  --hue: var(--hawks-hue);
+  --saturation: var(--hawks-saturation);
+  --lightness: var(--hawks-lightness);
+}
+
+[data-team="Lions"] {
+  --hue: var(--lions-hue);
+  --saturation: var(--lions-saturation);
+  --lightness: var(--lions-lightness);
+}
+
+[data-team="Eagles"] {
+  --hue: var(--eagles-hue);
+  --saturation: var(--eagles-saturation);
+  --lightness: var(--eagles-lightness);
+}
+
+[data-team="Marines"] {
+  --hue: var(--marines-hue);
+  --saturation: var(--marines-saturation);
+  --lightness: var(--marines-lightness);
+}
+
+[data-team="Fighters"] {
+  --hue: var(--fighters-hue);
+  --saturation: var(--fighters-saturation);
+  --lightness: var(--fighters-lightness);
+}
+
+[data-team="Swallows"] {
+  --hue: var(--swallows-hue);
+  --saturation: var(--swallows-saturation);
+  --lightness: var(--swallows-lightness);
+}
+
+[data-team="Baystars"] {
+  --hue: var(--baystars-hue);
+  --saturation: var(--baystars-saturation);
+  --lightness: var(--baystars-lightness);
+}
+
+[data-team="Tigers"] {
+  --hue: var(--tigers-hue);
+  --saturation: var(--tigers-saturation);
+  --lightness: var(--tigers-lightness);
+}
+
+[data-team="Giants"] {
+  --hue: var(--giants-hue);
+  --saturation: var(--giants-saturation);
+  --lightness: var(--giants-lightness);
+}
+
+[data-team="Carp"] {
+  --hue: var(--carp-hue);
+  --saturation: var(--carp-saturation);
+  --lightness: var(--carp-lightness);
+}
+
+[data-team="Dragons"] {
+  --hue: var(--dragons-hue);
+  --saturation: var(--dragons-saturation);
+  --lightness: var(--dragons-lightness);
+}
+
+[data-team] {
+  --team-color: hsl(var(--hue) var(--saturation) var(--lightness) / var(--alpha-value));
+  --team-bgcolor: hsl(var(--hue) var(--saturation) var(--lightness) / var(--alpha-bg));
+}
+
+[data-league="Pacific"] {
+  --league-color: var(--pacific-league-blue);
+}
+
+[data-league="Central"] {
+  --league-color: var(--central-league-green);
+}

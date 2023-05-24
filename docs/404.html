@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NPB Standings</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600&display=swap');
+  </style>
+  <style>
+    :root {
+      --bg-color: cornsilk;
+    }
+    body {
+      margin: 0;
+      background: var(--bg-color);
+    }
+    .container {
+      box-sizing: border-box;
+      margin-block: min(4px, 1vw);
+      padding-inline: min(4px,1vw);
+      padding-block: 0 0;
+    }
+  </style>
+  <link rel="stylesheet" href="/css/npb2023-colors.css?v=0523">
+</head>
+<body>
+  <npb-router></npb-router>
+
+  <div class="container">
+    <npb-standings></npb-standings>
+  </div>
+
+  <script type="importmap">
+{
+  "imports": {
+    "teams": "/js/npb2023-teams.js?v=0523",
+    "utils": "/js/npb2023-utils.js?v=0523",
+    "standings": "/js/npb-standings.js?v=0523",
+    "GameResult": "/js/GameResult.js?v=0523",
+    "router": "/js/npb2023-router.js?v=0523"
+  }
+}
+  </script>
+  <script type="module">
+import { NpbRouter, locationHandler } from "router";
+import { NpbStandings } from "standings";
+import { fetchOptions, responseToJson } from "utils";
+import { toNicknames } from "teams";
+import { toGameResult} from "GameResult";
+
+fetch("https://kurimareiji.github.io/npb2023-results/npb2023-results.json", {
+    cache: "no-cache",
+  })
+  .then(responseToJson)
+  .then(inputs => inputs.map(toNicknames).map(toGameResult))
+  .then(data=>{
+    document.dispatchEvent(new CustomEvent("ResultsLoaded", { detail: data}));
+  })
+  .catch(console.error);
+
+locationHandler();
+
+  </script>
+</body>
+</html>
