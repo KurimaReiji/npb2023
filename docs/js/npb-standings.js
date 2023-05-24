@@ -320,7 +320,7 @@ class NpbStandings extends HTMLElement {
 </ul>
     `;
     const shadow = this.attachShadow({ mode: "open" });
-    shadow.innerHTML = `${css} <link rel="stylesheet" href="/css/npb2023-colors-applied.css">${html}`;
+    shadow.innerHTML = `${css} <link rel="stylesheet" href="/npb2023/css/npb2023-colors-applied.css">${html}`;
 
     this.shadowRoot.querySelector("div").replaceChildren(...this.tables);
     this.show(this.getAttribute("league"));
