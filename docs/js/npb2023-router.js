@@ -1,5 +1,5 @@
 const locationHandler = () => {
-  const [_, app, ...opts] = location.pathname.split("/");
+  const [_, site, app, ...opts] = location.pathname.split("/");
   let title;
   if (app === "standings") {
     const [league, ...rest] = opts;
