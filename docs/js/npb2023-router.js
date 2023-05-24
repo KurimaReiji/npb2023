@@ -86,8 +86,8 @@ class NpbRouter extends HTMLElement {
   <li>NPB2023</li>
   <li>Standings
     <ul>
-      <li><a href="/standings/Pacific" data-app="standngs" data-league="Pacific">Pacific</a></li>
-      <li><a href="/standings/Central" data-app="standngs" data-league="Central">Central</a></li>
+      <li><a href="/npb2023/standings/Pacific" data-app="standngs" data-league="Pacific">Pacific</a></li>
+      <li><a href="/npb2023/standings/Central" data-app="standngs" data-league="Central">Central</a></li>
     </ul>
   </li>
 </ul>
