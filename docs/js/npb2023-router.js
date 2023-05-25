@@ -1,10 +1,16 @@
 const locationHandler = () => {
   const [_, site, app, ...opts] = location.pathname.split("/");
   let title;
-  if (app === "standings") {
+  if (app === "standings" || app === "head-to-head") {
     const [league, ...rest] = opts;
     title = `${league} League Standings of NPB 2023 Season`;
-    document.querySelector("npb-standings").setAttribute("league", league);
+    const standings = document.querySelector("npb-standings");
+    standings.setAttribute("league", league);
+    if (app === "head-to-head") {
+      standings.setAttribute("page", "h2h");
+    } else {
+      standings.removeAttribute("page");
+    }
   }
   document.querySelector("title").textContent = title;
 }
@@ -22,8 +28,11 @@ window.addEventListener("popstate", (_) => {
 
 const css = `<style>
 div {
-  padding-block-end: .5em;
+  margin-block-end: .5em;
   font-family: 'Noto Sans', sans-serif;
+  background: var(--npb-blue);
+  box-shadow: rgb(0 0 0) 1px 0px 5px;
+  overflow-x: auto;
 }
 ul {
   list-style: none;
@@ -32,13 +41,14 @@ ul {
   padding: 0;
   box-sizing: border-box;
 }
+li {
+  white-space: nowrap;
+}
 div>ul {
   margin-block: 0;
   padding: 8px 0 8px .5em;
   width: 100%;
-  background: var(--npb-blue);
   color: white;
-  box-shadow: rgb(0 0 0) 1px 0px 5px;
   height: 40px;
 }
 div>ul>li {
@@ -88,6 +98,12 @@ class NpbRouter extends HTMLElement {
     <ul>
       <li><a href="/npb2023/standings/Pacific" data-app="standngs" data-league="Pacific">Pacific</a></li>
       <li><a href="/npb2023/standings/Central" data-app="standngs" data-league="Central">Central</a></li>
+    </ul>
+  </li>
+  <li>Head-to-head
+    <ul>
+      <li><a href="/npb2023/head-to-head/Pacific" data-app="head-to-head" data-league="Pacific">Pacific</a></li>
+      <li><a href="/npb2023/head-to-head/Central" data-app="head-to-head" data-league="Central">Central</a></li>
     </ul>
   </li>
 </ul>

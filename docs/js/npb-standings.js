@@ -82,6 +82,16 @@ function to_tdmap(o) {
     dataset: { item: "blank" }
   }));
 
+  Teams.all().forEach((team) => {
+    const key = `vs. ${Teams.initial(team)}`;
+    const obj = o.headToHead.find(o => o.opponent === team) || { win: "0", loss: "0" };
+    const td = createElement("td")({
+      text: team === o.team ? "" : `${obj?.win}-${obj?.loss}`,
+      dataset: { item: key, align: "-" }
+    });
+    tds.set(key, align_to_char(td));
+  });
+
   return tds;
 }
 function create_tr(o, items) {
@@ -92,34 +102,42 @@ function create_tr(o, items) {
 }
 
 function align_to_char(td) {
-  if (!td.dataset.align) return td;
+  if (!td.dataset.align | !td.textContent) return td;
   const [win, loss] = td.textContent.split(td.dataset.align);
   td.innerHTML = [win.padStart(2).slice(-2), loss.padEnd(2).slice(0, 2)].map((s) => s.replace(" ", "&ensp;")).join(td.dataset.align);
   return td;
 };
 
-function create_table(games, league, items, options = {}) {
+function create_table(records, league, items, options = {}) {
+  const data = records.filter((obj) => Teams.league(obj.team) === league);
+  const h2h = records
+    .sort((a, b) => {
+      if (Teams.league(a.team) === Teams.league(b.team)) return 0;
+      if (Teams.league(a.team) === league) return -1;
+      if (Teams.league(b.team) === league) return 1;
+      return 0;
+    })
+    .map(o => `vs. ${Teams.initial(o.team)}`);
+  const itemsWh2h = items.concat(h2h);
   const table = createElement("table")(options);
-  const thead = create_thead(items, league);
-  const tbody = create_tbody(games, league, items);
+  const thead = create_thead(itemsWh2h);
+  const tbody = create_tbody(data, itemsWh2h);
 
   table.replaceChildren(thead, tbody);
   table.style.display = "none";
   return table;
 }
 
-function create_tbody(games, league, items) {
-  const data = getRecords(games).filter((obj) => Teams.league(obj.team) === league);
+function create_tbody(records, items) {
   const tbody = createElement("tbody")({});
-
-  const trs = data.map((o) => {
+  const trs = records.map((o) => {
     return [create_tr(o, items), create_tr(o.home, items), create_tr(o.road, items)];
   }).flat();
   tbody.replaceChildren(...trs);
   return tbody;
 }
 
-function create_thead(items, league) {
+function create_thead(items) {
   const thead = createElement("thead")({});
   const ths = items
     .map((text) => {
@@ -225,6 +243,30 @@ tbody>tr:nth-of-type(3n+3) [data-item="Team"] {
 [data-item="blank"] {
   width: var(--blankcolumn-width);
 }
+.h2h [data-item="blank"] {
+  width: calc(.25 * var(--blankcolumn-width));
+}
+[data-item^="vs. "] {
+  text-align: center;
+  display: none;
+}
+.h2h [data-item^="vs. "] {
+  display: table-cell;
+}
+.h2h [data-item="Diff"],
+.h2h [data-item="RA"],
+.h2h [data-item="RS"],
+.h2h [data-item="RA/G"],
+.h2h [data-item="RS/G"],
+.h2h [data-item="Luck"],
+.h2h [data-item="X-W/L"],
+.h2h [data-item="10+R"],
+.h2h [data-item="SHO"],
+.h2h [data-item="1 RUN"],
+.h2h [data-item="STRK"],
+.h2h [data-item="L10"] {
+  display: none;
+}
 tbody>tr:nth-of-type(3n+1) td {
   font-weight: 600;
 }
@@ -233,7 +275,7 @@ tbody>tr:nth-of-type(3n+1) td {
 table {
   background: var(--bg-white);
 }
-thead th {
+th {
   --border: calc(100% - var(--gap,0));
   background-image: linear-gradient(
     180deg,
@@ -265,6 +307,51 @@ tbody tr:nth-of-type(3n+3) td {
     var(--bg-color) var(--border-line),
     var(--bg-color) 100%);
 }
+th[data-item^="vs. "] {
+  background: linear-gradient(
+    180deg,
+    var(--team-color) 0%,
+    var(--team-color) var(--border),
+    var(--self-bg-color) var(--border),
+    var(--self-bg-color) 100%
+  );
+}
+th[data-item="vs. B"] {
+  --team-color: var(--buffaloes-gold);
+}
+th[data-item="vs. H"] {
+  --team-color: var(--hawks-gold);
+}
+th[data-item="vs. M"] {
+  --team-color: var(--marines-silver);
+}
+th[data-item="vs. L"] {
+  --team-color: var(--lions-navy);
+}
+th[data-item="vs. E"] {
+  --team-color: var(--eagles-winered);
+}
+th[data-item="vs. F"] {
+  --team-color: var(--fighters-blue);
+}
+th[data-item="vs. S"] {
+  --team-color: var(--swallows-green);
+}
+th[data-item="vs. T"] {
+  --team-color: var(--tigers-yellow);
+}
+th[data-item="vs. G"] {
+  --team-color: var(--giants-orange);
+}
+th[data-item="vs. DB"] {
+  --team-color: var(--baystars-darkblue);
+}
+th[data-item="vs. C"] {
+  --team-color: var(--carp-red);
+}
+th[data-item="vs. D"] {
+  --team-color: var(--dragons-lightblue);
+}
 
 table:after {
   content: attr(data-updated);
@@ -283,6 +370,9 @@ table:after {
   padding-inline: 0;
   margin-block: 1rem 0;
 }
+.h2h ~ .notes {
+  display: none;
+}
 li {
   margin-inline-end: 1.2em;
 }
@@ -290,11 +380,12 @@ li {
 
 class NpbStandings extends HTMLElement {
   static get observedAttributes() {
-    return ["league"];
+    return ["league", "page"];
   }
 
   constructor() {
     super();
+    this.render();
   }
 
   show(league) {
@@ -311,19 +402,16 @@ class NpbStandings extends HTMLElement {
 <div></div>
 <ul class="notes">
   <li>L10: Record in the Last 10 Games</li>
-  <li>STRK: Current&nbsp;Streak</li>
+  <li>STRK:&nbsp;Current&nbsp;Streak</li>
   <li>X-W/L: Expected Win-loss Record Based on Runs Scored and Runs Allowed</li>
   <li>Luck: The difference between the actual W-L and Pythagorean W-L</li>
-  <li>1Run: One Run Games (W-L)</li>
+  <li>1Run:&nbsp;One Run Games (W-L)</li>
   <li>SHO: Shutout Games (Pitching, Batting)</li>
   <li>10+R: 10 Runs and more (Scored, Allowed)</li>
 </ul>
     `;
     const shadow = this.attachShadow({ mode: "open" });
     shadow.innerHTML = `${css} <link rel="stylesheet" href="/npb2023/css/npb2023-colors-applied.css">${html}`;
-
-    this.shadowRoot.querySelector("div").replaceChildren(...this.tables);
-    this.show(this.getAttribute("league"));
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -331,6 +419,12 @@ class NpbStandings extends HTMLElement {
     if (name === "league") {
       if (["Pacific", "Central"].indexOf(newValue) < 0) return;
       this.show(newValue);
+    } else if (name === "page") {
+      const div = this.shadowRoot.querySelector("div");
+      if (newValue === "h2h") {
+        div.classList.add("h2h");
+      } else
+        div.classList.remove("h2h");
     }
   }
 
@@ -343,13 +437,14 @@ class NpbStandings extends HTMLElement {
         year: "numeric",
       }).format(new Date(`${games.at(-1).date}T12:00`));
 
+      const records = getRecords(games);
       this.tables = ["Pacific", "Central"].map((league) => {
-        return create_table(games, league, items, {
+        return create_table(records, league, items, {
           dataset: { league, updated: `After games of ${updated}` }
         });
       });
-
-      this.render();
+      this.shadowRoot.querySelector("div").replaceChildren(...this.tables);
+      this.show(this.getAttribute("league"));
     });
   }
 };
