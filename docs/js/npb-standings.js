@@ -401,13 +401,13 @@ class NpbStandings extends HTMLElement {
     const html = `
 <div></div>
 <ul class="notes">
-  <li>L10: Record in the Last 10 Games</li>
+  <li>L10:&nbsp;Record in the Last 10 Games</li>
   <li>STRK:&nbsp;Current&nbsp;Streak</li>
-  <li>X-W/L: Expected Win-loss Record Based on Runs Scored and Runs Allowed</li>
-  <li>Luck: The difference between the actual W-L and Pythagorean W-L</li>
-  <li>1Run:&nbsp;One Run Games (W-L)</li>
-  <li>SHO: Shutout Games (Pitching, Batting)</li>
-  <li>10+R: 10 Runs and more (Scored, Allowed)</li>
+  <li>X-W/L:&nbsp;Expected Win-loss Record Based on Runs Scored and Runs Allowed</li>
+  <li>Luck:&nbsp;The difference between the actual W-L and Pythagorean W-L</li>
+  <li>1&nbsp;Run:&nbsp;Record in 1-run games</li>
+  <li>SHO:&nbsp;Shutout Games (Pitching, Batting)</li>
+  <li>10+R:&nbsp;10 Runs and more (Scored, Allowed)</li>
 </ul>
     `;
     const shadow = this.attachShadow({ mode: "open" });

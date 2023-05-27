@@ -20,6 +20,7 @@
       margin-block: min(4px, 1vw);
       padding-inline: min(4px,1vw);
       padding-block: 0 0;
+      min-height: calc(100svh - 50px);
     }
   </style>
   <link rel="stylesheet" href="/npb2023/css/npb2023-colors.css?v=0523">
@@ -29,6 +30,7 @@
 
   <div class="container">
     <npb-standings></npb-standings>
+    <npb-above500></npb-above500>
   </div>
 
   <script type="importmap">
@@ -36,20 +38,23 @@
   "imports": {
     "teams": "/npb2023/js/npb2023-teams.js?v=0523",
     "utils": "/npb2023/js/npb2023-utils.js?v=0523",
-    "standings": "/npb2023/js/npb-standings.js?v=0524",
+    "standings": "/npb2023/js/npb-standings.js?v=0527",
+    "above500": "/npb2023/js/npb-above500.js?v=0527",
     "GameResult": "/npb2023/js/GameResult.js?v=0523",
-    "router": "/npb2023/js/npb2023-router.js?v=0524"
+    "router": "/npb2023/js/npb2023-router.js?v=0527"
   }
 }
   </script>
   <script type="module">
 import { NpbRouter, locationHandler } from "router";
 import { NpbStandings } from "standings";
+import { NpbAbove500 } from "above500";
 import { fetchOptions, responseToJson } from "utils";
 import { toNicknames } from "teams";
 import { toGameResult} from "GameResult";
 
-fetch("https://kurimareiji.github.io/npb2023-results/npb2023-results.json", {
+const json = "https://kurimareiji.github.io/npb2023-results/npb2023-results.json";
+fetch(json, {
     cache: "no-cache",
   })
   .then(responseToJson)
@@ -60,6 +65,9 @@ fetch("https://kurimareiji.github.io/npb2023-results/npb2023-results.json", {
   .catch(console.error);
 
 locationHandler();
+
+const div = document.querySelector(".container");
+div.style.width = getComputedStyle(div).width;
 
   </script>
 </body>

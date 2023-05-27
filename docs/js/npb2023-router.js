@@ -1,16 +1,26 @@
 const locationHandler = () => {
   const [_, site, app, ...opts] = location.pathname.split("/");
   let title;
+  [...document.querySelectorAll(".container *")].forEach((app) => {
+    app.style.display = "none";
+  });
   if (app === "standings" || app === "head-to-head") {
     const [league, ...rest] = opts;
     title = `${league} League Standings of NPB 2023 Season`;
     const standings = document.querySelector("npb-standings");
+    standings.style.display = "block";
     standings.setAttribute("league", league);
     if (app === "head-to-head") {
       standings.setAttribute("page", "h2h");
     } else {
       standings.removeAttribute("page");
     }
+  } else if (app === "above500") {
+    const [league, ...rest] = opts;
+    title = `Games above .500, 2023 ${league} League, NPB 2023 Season`;
+    const above500 = document.querySelector("npb-above500");
+    above500.style.display = "block";
+    above500.setAttribute("league", league);
   }
   document.querySelector("title").textContent = title;
 }
@@ -106,6 +116,12 @@ class NpbRouter extends HTMLElement {
       <li><a href="/npb2023/head-to-head/Central" data-app="head-to-head" data-league="Central">Central</a></li>
     </ul>
   </li>
+  <li>Above .500
+  <ul>
+    <li><a href="/npb2023/above500/Pacific" data-app="above500" data-league="Pacific">Pacific</a></li>
+    <li><a href="/npb2023/above500/Central" data-app="above500" data-league="Central">Central</a></li>
+  </ul>
+</li>
 </ul>
 </div>
     `;
