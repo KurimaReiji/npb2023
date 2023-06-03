@@ -96,6 +96,7 @@ const isInterLeague = (game) => {
 const headToHead = (team) => (games) => {
   const opponents = games.map((game) => game.opponentOf(team)).reduce(to_uniq);
   const interLeagueGames = games.filter((game) => game.isInterLeagueGame);
+  const intraLeagueGames = games.filter((game) => !game.isInterLeagueGame);
   const data = opponents
     .map((opp) => {
       const vsGames = games.filter((g) => g.opponentOf(team) === opp);
@@ -108,10 +109,16 @@ const headToHead = (team) => (games) => {
     })
     .concat([
       {
-        opponent: "Int",
+        opponent: "Inter",
         win: interLeagueGames.filter((g) => g.winner === team).length,
         loss: interLeagueGames.filter((g) => g.loser === team).length,
         tied: interLeagueGames.filter((g) => g.isTied).length,
+      },
+      {
+        opponent: "Intra",
+        win: intraLeagueGames.filter((g) => g.winner === team).length,
+        loss: intraLeagueGames.filter((g) => g.loser === team).length,
+        tied: intraLeagueGames.filter((g) => g.isTied).length,
       },
     ]);
 
@@ -223,6 +230,28 @@ const responseToJson = (res) => {
   return res.json();
 }
 
+function waitFor(selector, parent) {
+  // https://stackoverflow.com/a/61511955
+  if (!parent) parent = document;
+  return new Promise(resolve => {
+    if (parent.querySelector(selector)) {
+      return resolve(parent.querySelector(selector));
+    }
+
+    const observer = new MutationObserver(mutations => {
+      if (parent.querySelector(selector)) {
+        resolve(parent.querySelector(selector));
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(parent, {
+      childList: true,
+      subtree: true
+    });
+  });
+}
+
 export {
   daysFromOpeningDay,
   winpct,
@@ -239,4 +268,5 @@ export {
   get_records,
   fetchOptions,
   responseToJson,
+  waitFor,
 }

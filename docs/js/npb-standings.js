@@ -92,6 +92,16 @@ function to_tdmap(o) {
     tds.set(key, align_to_char(td));
   });
 
+  ["Central", "Pacific"].forEach((league) => {
+    const key = `vs. ${league.at(0)}L`;
+    const cp = Teams.league(o.team) === league ? "Intra" : "Inter"
+    const obj = o.headToHead.find(o => o.opponent === cp) || { win: "0", loss: "0" };
+    const td = createElement("td")({
+      text: `${obj?.win}-${obj?.loss}`,
+      dataset: { item: key, align: "-" }
+    });
+    tds.set(key, align_to_char(td));
+  })
   return tds;
 }
 function create_tr(o, items) {
@@ -118,7 +128,13 @@ function create_table(records, league, items, options = {}) {
       return 0;
     })
     .map(o => `vs. ${Teams.initial(o.team)}`);
-  const itemsWh2h = items.concat(h2h);
+  //const itemsWh2h = items.concat(h2h).concat([`vs. ${league === "Pacific" ? "C" : "P"}L`]);
+  const itemsWh2h = [...items,
+  h2h.slice(0, 6),
+  `vs. ${league === "Pacific" ? "P" : "C"}L`,
+  `vs. ${league === "Pacific" ? "C" : "P"}L`,
+  h2h.slice(6)
+  ].flat();
   const table = createElement("table")(options);
   const thead = create_thead(itemsWh2h);
   const tbody = create_tbody(data, itemsWh2h);
@@ -351,6 +367,12 @@ th[data-item="vs. C"] {
 }
 th[data-item="vs. D"] {
   --team-color: var(--dragons-lightblue);
+}
+th[data-item="vs. PL"] {
+  --team-color: var(--pacific-league-blue);
+}
+th[data-item="vs. CL"] {
+  --team-color: var(--central-league-green);
 }
 
 table:after {
