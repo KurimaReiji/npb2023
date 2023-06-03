@@ -103,7 +103,7 @@ class NpbRouter extends HTMLElement {
     const html = `
 <div>
 <ul>
-  <li>NPB2023</li>
+  <li><a href="https://github.com/KurimaReiji/npb2023">NPB2023</a></li>
   <li>Standings
     <ul>
       <li><a href="/npb2023/standings/Pacific" data-app="standngs" data-league="Pacific">Pacific</a></li>

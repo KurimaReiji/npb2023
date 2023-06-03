@@ -18,7 +18,6 @@ function create_chart(series, dates, league, options = {}) {
 }
 
 function get_params(series, dates, duration, width = 1152, height = 548) {
-  console.log(width, height);
   const [xRange, yRange] = [
     [0, width],
     [0, height]
@@ -330,7 +329,6 @@ function load_font(obj) {
 async function download({ detail }) {
   const { width = 1200, height = 1200, league = "Central", filename = "output.png" } = detail;
   const { self } = detail;
-  console.log(detail);
   const div = create_chart(self.series, self.dates, league, { width, height });
   const svg = div.querySelector("svg");
   svg.setAttributeNS(null, "width", width);
@@ -347,8 +345,19 @@ async function download({ detail }) {
   const fonts = await load_font({ name: "Noto Sans", url: "/npb2023/fonts/NotoSans-Regular.ttf" });
   svg.querySelector(`style[data-css="fonts"]`).textContent = fonts;
 
-  console.log(svg);
-  svgdownload(filename, svg);
+  document.body.append(div);
+
+  const targetLabels = [...svg.querySelectorAll(`.label`)]
+    .sort((a, b) => {
+      const [aa, bb] = [a, b].map(el => Number(el.getAttribute("y")));
+      if (aa > bb) return 1;
+      if (aa, bb) return -1;
+      return 0;
+    });
+  fix_overlapping(targetLabels);
+
+  await svgdownload(filename, svg);
+  div.remove();
 }
 
 const css = `<link rel="stylesheet" href="/npb2023/css/npb2023-colors.css?v=0523">
