@@ -1,5 +1,6 @@
 {
   "name": "npb2023",
+  "type": "module",
   "version": "1.0.0",
   "description": "Some data on 2023 season of Nippon Professional Baseball",
   "main": "above500.js",
