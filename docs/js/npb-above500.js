@@ -1,6 +1,6 @@
 import { daysFromOpeningDay, to_total, to_uniq, teams_by_wpct, createElement } from "./npb2023-utils.js";
 import { NpbTeams as Teams } from "./npb2023-teams.js";
-import { createSVG, createBackgroundRect, createTics, createAxis, createGroup, createTextbox, createPath, createCircle, createText, trunc, createScale } from "./svg-utils.js";
+import { createSVG, createBackgroundRect, createTics, createAxis, createGroup, createTextbox, createPath, createCircle, createText, trunc, createScale, svgdownload } from "./svg-utils.js?v=0603";
 
 function create_chart(series, dates, league, options = {}) {
   const s = series.filter((o) => Teams.league(o.team) === league);
@@ -18,6 +18,7 @@ function create_chart(series, dates, league, options = {}) {
 }
 
 function get_params(series, dates, duration, width = 1152, height = 548) {
+  console.log(width, height);
   const [xRange, yRange] = [
     [0, width],
     [0, height]
@@ -252,16 +253,23 @@ const draw_chart = (params) => {
   const { xRange, yRange, tics, axis, title } = params;
 
   const fragment = document.createDocumentFragment();
-
   const svg = createSVG(xRange, yRange);
-
+  const fonts = createElement("style")({
+    dataset: { css: "fonts" }
+  });
+  const css = createElement("style")({
+    text: svgStyles,
+  });
+  const externalcss = createElement("style")({
+    dataset: { css: "external" }
+  });
   const bgRect = createBackgroundRect(svg);
   const gTics = createTics(tics);
   const gAxis = createAxis(axis);
   const gSeries = createGroup({ cls: ["series"] });
   const gTitle = createTextbox(title);
 
-  fragment.append(bgRect, gTics, gAxis, gSeries, gTitle);
+  fragment.append(fonts, css, externalcss, bgRect, gTics, gAxis, gSeries, gTitle);
   svg.append(fragment);
   return svg;
 };
@@ -289,20 +297,77 @@ function fix_overlapping(targets) {
   }
 };
 
-const css = `<link rel="stylesheet" href="/npb2023/css/npb2023-colors-applied.css"><style>
+function load_css_rules(link, root) {
+  return new Promise(resolve => {
+    if (link.sheet) resolve([...link.sheet.cssRules].map(r => r.cssText).join("\n"));
+    link.addEventListener("load", ({ currentTarget }) => {
+      const css = [...root.styleSheets].find(sheet => sheet.href === currentTarget.href);
+      const rules = [...css.cssRules].map(r => r.cssText).join("\n");
+      resolve(rules);
+    });
+  });
+}
+
+function load_font(obj) {
+  const { name, url } = obj;
+  return new Promise(resolve => {
+    const reader = new FileReader();
+
+    reader.addEventListener("load", () => {
+      const rule = `@font-face{
+          font-family: '${name}';
+          src: url("${reader.result}");
+        }`;
+      resolve(rule);
+    });
+
+    fetch(url)
+      .then(r => r.blob())
+      .then(b => reader.readAsDataURL(b))
+  });
+}
+
+async function download({ detail }) {
+  const { width = 1200, height = 1200, league = "Central", filename = "output.png" } = detail;
+  const { self } = detail;
+  console.log(detail);
+  const div = create_chart(self.series, self.dates, league, { width, height });
+  const svg = div.querySelector("svg");
+  svg.setAttributeNS(null, "width", width);
+  svg.setAttributeNS(null, "height", height);
+
+  const prom = [...self.shadowRoot.querySelectorAll(`link[rel="stylesheet"]`)]
+    .map((link) => {
+      return load_css_rules(link, self.shadowRoot);
+    });
+  const rules = await Promise.all(prom)
+    .then(css => css.join("\n"));
+  svg.querySelector(`style[data-css="external"]`).textContent = rules;
+
+  const fonts = await load_font({ name: "Noto Sans", url: "/npb2023/fonts/NotoSans-Regular.ttf" });
+  svg.querySelector(`style[data-css="fonts"]`).textContent = fonts;
+
+  console.log(svg);
+  svgdownload(filename, svg);
+}
+
+const css = `<link rel="stylesheet" href="/npb2023/css/npb2023-colors.css?v=0523">
+<link rel="stylesheet" href="/npb2023/css/npb2023-colors-applied.css"><style>
 :host {
   display: block;
   --bg-color: var(--bg-color, crimson);
-  --chart-width: calc(100vw - 20px);
-  --chart-height: calc(100vh - 50px);
-  --w: var(--chart-width);
+  font-family: 'Noto Sans', sans-serif;
+}
+</style>`;
+
+const svgStyles = `
+text {
   font-family: 'Noto Sans', sans-serif;
 }
 .bgRect {
   stroke: none;
   fill: var(--bg-color, cornsilk);
 }
-
 .tics,
 .axis {
   stroke: var(--text-color, midnightblue);
@@ -311,16 +376,13 @@ const css = `<link rel="stylesheet" href="/npb2023/css/npb2023-colors-applied.cs
 .tics path {
   stroke-opacity: 0.5;
 }
-
 .tics text {
   stroke: none;
   fill: var(--text-color, midnightblue);
 }
-
 .ytics {
   text-anchor: end;
 }
-
 .xtics {
   text-anchor: middle;
 }
@@ -340,13 +402,11 @@ const css = `<link rel="stylesheet" href="/npb2023/css/npb2023-colors-applied.cs
 .series text {
   fill: var(--team-color);
   font-weight: bold;
-  //filter: drop-shadow(0px 1px 0px rgba(0, 0, 0, 0.9));
 }
-
 .textbox rect {
   fill: var(--bg-color);
 }
-</style>`;
+`;
 
 class NpbAbove500 extends HTMLElement {
   static get observedAttributes() {
@@ -372,6 +432,8 @@ class NpbAbove500 extends HTMLElement {
     if (name === "league") {
       if (["Pacific", "Central"].indexOf(newValue) < 0) return;
       this.show(newValue);
+    } else if (name === "capture") {
+      this.build(this.series, this.dates, this.updated, this.shadowRoot.querySelector("div"));
     }
   }
 
@@ -391,31 +453,40 @@ class NpbAbove500 extends HTMLElement {
     });
   }
 
-  connectedCallback() {
+  build(series, dates, updated, div) {
+    if (!this.shadowRoot) return;
     const container = document.querySelector(".container");
     const [width, height] = ["width", "height"].map((prop) => {
       const value = getComputedStyle(container)[prop];
       return Number(value.replace("px", ""));
     });
+    const charts = ["Pacific", "Central"].map((league) => {
+      return create_chart(series, dates, league, {
+        width, height,
+        dataset: { league, updated: `After games of ${updated}` }
+      });
+    });
+    div.replaceChildren(...charts);
+    this.show(this.getAttribute("league"));
+  }
+
+  connectedCallback() {
     document.addEventListener("ResultsLoaded", (e) => {
       const games = e.detail;
-      const updated = new Intl.DateTimeFormat("en-US", {
+      this.updated = new Intl.DateTimeFormat("en-US", {
         month: "short",
         day: "numeric",
         year: "numeric",
       }).format(new Date(`${games.at(-1).date}T12:00`));
 
-      const dates = get_dates(games);
-      const series = get_series(games, dates);
-      this.charts = ["Pacific", "Central"].map((league) => {
-        return create_chart(series, dates, league, {
-          width, height,
-          dataset: { league, updated: `After games of ${updated}` }
-        });
-      });
-      this.shadowRoot.querySelector("div").replaceChildren(...this.charts);
+      this.dates = get_dates(games);
+      this.series = get_series(games, this.dates);
+
+      this.build(this.series, this.dates, this.updated, this.shadowRoot.querySelector("div"));
       this.show(this.getAttribute("league"));
     });
+
+    document.addEventListener("PngDownload", download);
   }
 }
 

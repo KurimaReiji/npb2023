@@ -10,7 +10,11 @@ const createSVGelement = (tagName) => {
       elm.dataset[key] = dataset[key];
     });
     Object.keys(attr).forEach((name) => {
-      elm.setAttribute(name, attr[name]);
+      if (tagName === "svg") {
+        elm.setAttribute(name, attr[name]);
+      } else {
+        elm.setAttributeNS(null, name, attr[name]);
+      }
     });
     cls.forEach((name) => {
       elm.classList.add(name);
@@ -26,6 +30,7 @@ const createSVG = (xRange, yRange) => {
       {
         attr: {
           xmlns,
+          "xmlns:xlink": "http://www.w3.org/1999/xlink",
           preserveAspectRatio: "none",
           viewBox: `${xRange[0]} ${yRange[0]} ${xRange[1] - xRange[0]} ${yRange[1] - yRange[0]
             }`,
@@ -46,9 +51,9 @@ const createScale = (domain, range, shift = 0, pad = 0) => {
   return (x) => trunc(shift + (rLength * (x - domain[0])) / dLength);
 };
 
-const svgdownload = (filename) => {
+const svgdownload = (filename, svg = null) => {
   const delay = (msec) => new Promise((r) => setTimeout(r, msec));
-  const svg = document.querySelector("svg");
+  svg = svg || document.querySelector("svg");
   const svgData = new XMLSerializer().serializeToString(svg);
 
   const canvas = document.createElement("canvas");
@@ -69,7 +74,7 @@ const svgdownload = (filename) => {
         resolve(filename);
       });
     };
-    image.src = "data:image/svg+xml;charset=utf-8;base64," + btoa(svgData);
+    image.src = "data:image/svg+xml;charset=utf-8;base64," + window.btoa(svgData);
   });
 };
 
