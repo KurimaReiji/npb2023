@@ -1,4 +1,4 @@
-name: get the results of today
+name: save images
 on:
   schedule:
     - cron: '35 13 * 5-10 *'
