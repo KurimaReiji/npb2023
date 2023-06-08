@@ -25,7 +25,7 @@ function get_params(series, dates, duration, width = 1152, height = 548) {
   const vw = trunc(width * 0.01);
   const year = dates.start.split("-")[0];
   const yMax = Math.max(...series.map((s) => s.above.max), 20);
-  const yMin = Math.min(...series.map((s) => s.above.min), -20);
+  const yMin = Math.min(...series.map((s) => s.above.min), -15);
   const xShift = dates.duration - duration;
 
   const xAxis = [xShift, dates.duration + 0];
