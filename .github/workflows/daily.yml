@@ -21,8 +21,8 @@ jobs:
     - name: install puppeteer
       run: npm ci
     - name: save images
-      run: node ./puppeteer/above500.js
-      working-directory: ./
+      run: node ../puppeteer/above500.js
+      working-directory: ./docs/
     - name: commit and push
       run: |
         git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
