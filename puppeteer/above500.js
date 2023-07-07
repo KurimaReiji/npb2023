@@ -32,7 +32,7 @@ const scraper = (league) => {
   });
 
   const targetURL = `https://kurimareiji.github.io/npb2023/above500/Central`;
-  await page.goto(targetURL);
+  await page.goto(targetURL, { timeout: 60000 });
   console.log("Hello");
   await page.waitForSelector(`npb-above500[league]`);
   await page.evaluate(scraper, "Central");
