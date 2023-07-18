@@ -1,8 +1,8 @@
 name: save images
 on:
   schedule:
-    - cron: '35 13 * 5-10 *'
-    - cron: '55 15 * 5-10 *'
+    - cron: '35 13 * 8-10 *'
+    - cron: '55 15 * 8-10 *'
   workflow_dispatch:
 
 jobs:
