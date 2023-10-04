@@ -63,7 +63,7 @@ function get_params(series, dates, duration, width = 1152, height = 548) {
     ],
   };
 
-  const xTics = "04,05,06,07,08,09,10"
+  const xTics = "04,05,06,07,08,09"
     .split(",")
     .map((mm) => {
       return "01,15".split(",").map((dd) => `${year}-${mm}-${dd}`);
