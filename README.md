@@ -8,3 +8,5 @@ Some data on 2023 season of Nippon Professional Baseball
 
 ![above .500 / Pacific League](/docs/PLabove500.png)
 ![above .500 / Central League](/docs/CLabove500.png)
+
+- [npb2023-stadiums.json](https://kurimareiji.github.io/npb2023/npb2023-stadiums.json)
